@@ -1,4 +1,4 @@
-/* Prerelease Version 0.2 */
+/* Prerelease Version 0.4 */
 
 /*******************************************************************************
  * FILENAME: TinyCFG.h
@@ -101,8 +101,9 @@ class TinyCFG
         void Clear(void);
 
         /* For custom types */
-        void WriteData(const char *XmlName,const char *Value);
-        const char *ReadData(const char *DataElementName);
+        void WriteDataElement(const char *XmlName,const char *Value);
+        const char *ReadDataElement(const char *DataElementName);
+        const char *ReadNextDataElement(const char *DataElementName);
         /* For advanced data types */
         void ConnectToParentCFGForReading(class TinyCFG *OrgCFG);
         bool WriteCFGUsingParentCFG(class TinyCFG *OrgCFG);

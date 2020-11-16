@@ -1,9 +1,41 @@
+/* DEBUG PAUL: Convert to something like this when TinyCFG has been updated to support it */
+//    char buff[100];
+//    char TagName[100];
+//    while(CFG->ReadNextXMLTag(TagName,sizeof(TagName),buff,sizeof(buff)))
+//    {
+//        for(cmd=0;cmd<e_CmdMAX;cmd++)
+//        {
+//            if(strcmp(TagName,GetCmdName((e_CmdType)cmd))==0)
+//            {
+//                /* Found it */
+//                ConvertString2KeySeq(&(*Ptr)[cmd],buff);
+//                break;
+//            }
+//        }
+//    }
+//ReadData <--- Already exists
+//CFG->FindXMLBlock("Name")             <- Searchs from the start of the call back block.  (moves cursor to just after the block start)
+//CFG->FindNextXMLBlock("Name")         <- Searchs from the cursor in the call back block (only returns blocks at the curent indent). (moves cursor to just after the block start)
+//CFG->ReadNextXMLTag(buff,size);       <- Reads the next XML tag from the current cursor (only returns blocks at the curent indent). (moves cursor to the end of tag)
+
+
+/* DEBUG PAUL: Convert to something like this when TinyCFG has been updated to support it */
+//    char buff[100];
+//    for(cmd=0;cmd<e_CmdMAX;cmd++)
+//    {
+//        strcpy(buff[cmd],ConvertKeySeq2String(&(*Ptr)[cmd]));
+//        CFG->WriteXMLTag(GetCmdName((e_CmdType)cmd),buff);
+//    }
+////CFG->WriteXMLStartBlock("Name");
+////CFG->WriteXMLEndBlock();
+////WriteData()  <--- Already exists
+
 /* DEBUG PAUL: Things to look at:
     * Do we need LoadDataDataStart or can we just use the normal read pos?
     * Add headers to everything
 */
 
-/* Prerelease Version 0.2 */
+/* Prerelease Version 0.4 */
 
 /*******************************************************************************
  * FILENAME: TinyCFG.cpp
@@ -313,7 +345,7 @@ bool TinyCFG_DefaultStringListData::LoadElement(class TinyCFG *CFG)
 
     Ptr->clear();
 
-    while((Str=CFG->ReadData("Data"))!=NULL)
+    while((Str=CFG->ReadNextDataElement("Data"))!=NULL)
         Ptr->push_back(Str);
 
     return true;
@@ -323,7 +355,7 @@ bool TinyCFG_DefaultStringListData::SaveElement(class TinyCFG *CFG)
     list<string>::iterator i;
 
     for(i=Ptr->begin();i!=Ptr->end();i++)
-        CFG->WriteData("Data",i->c_str());
+        CFG->WriteDataElement("Data",i->c_str());
 
     return true;
 }
@@ -340,7 +372,7 @@ bool TinyCFG_DefaultIntListData::LoadElement(class TinyCFG *CFG)
 
     Ptr->clear();
 
-    while((Str=CFG->ReadData("Data"))!=NULL)
+    while((Str=CFG->ReadNextDataElement("Data"))!=NULL)
         Ptr->push_back(atoi(Str));
 
     return true;
@@ -353,7 +385,7 @@ bool TinyCFG_DefaultIntListData::SaveElement(class TinyCFG *CFG)
     for(i=Ptr->begin();i!=Ptr->end();i++)
     {
         sprintf(buff,"%d",*i);
-        CFG->WriteData("Data",buff);
+        CFG->WriteDataElement("Data",buff);
     }
     return true;
 }
@@ -1448,10 +1480,10 @@ void TinyCFG::WriteXMLEscapedString(const char *OutString)
 
 /*******************************************************************************
  * NAME:
- *    TinyCFG::WriteData
+ *    TinyCFG::WriteDataElement
  *
  * SYNOPSIS:
- *    void TinyCFG::WriteData(const char *XmlName,const char *Value);
+ *    void TinyCFG::WriteDataElement(const char *XmlName,const char *Value);
  *
  * PARAMETERS:
  *    XmlName [I] -- The name of the XML tag to wrap the data in
@@ -1468,7 +1500,7 @@ void TinyCFG::WriteXMLEscapedString(const char *OutString)
  * SEE ALSO:
  *    
  ******************************************************************************/
-void TinyCFG::WriteData(const char *XmlName,const char *Value)
+void TinyCFG::WriteDataElement(const char *XmlName,const char *Value)
 {
     WriteXMLOpenDataElement(XmlName);
     WriteXMLEscapedString(Value);
@@ -1887,7 +1919,123 @@ bool TinyCFG::CheckXMLName(const char *CheckName)
     return true;
 }
 
-const char *TinyCFG::ReadData(const char *DataElementName)
+/*******************************************************************************
+ * NAME:
+ *    TinyCFG::ReadDataElement()
+ *
+ * SYNOPSIS:
+ *    const char *TinyCFG::ReadDataElement(const char *DataElementName);
+ *
+ * PARAMETERS:
+ *    DataElementName [I] -- The name of the element to search for.
+ *
+ * FUNCTION:
+ *    This function starts at the top of the current element block that started
+ *    the LoadElement() call.
+ *
+ *    So for example if you registered a data type of "MyStuff" and added
+ *    a LoadElement() callback.  Then for this XML:
+ *
+ *    <Root>
+ *      <MyStuff>
+ *          <Element1>Value1</Element1>
+ *          <Element2>Value2</Element2>
+ *          <Element3>Value3</Element3>
+ *          <Element1>Value4</Element1>
+ *          <Element2>Value5</Element2>
+ *          <Element3>Value6</Element3>
+ *      </MyStuff>
+ *    </Root>
+ *
+ *    When LoadElement() is called it will start searching at the top of
+ *    the <MyStuff> block.
+ *
+ *    If you call ReadDataElement("Element2") it will return "Value2".
+ *    If you call it again it will return "Value2" again and NOT "Value5".
+ *
+ * RETURNS:
+ *    The data from the 'DataElementName' element or NULL if it was not found.
+ *
+ * SEE ALSO:
+ *    ReadNextDataElement()
+ ******************************************************************************/
+const char *TinyCFG::ReadDataElement(const char *DataElementName)
+{
+    char *StartOfElementData;
+    char *p;
+
+    /* Start at the top of the data block again */
+    LoadDataReadPoint=LoadDataDataStart;
+
+    StartOfElementData=FindElementAtThisLevel(DataElementName,false);
+    if(StartOfElementData==NULL)
+        return NULL;
+
+    /* Found, now we need to make it a string */
+    p=StartOfElementData;
+    while(*p!='<' && *p!=0)
+        p++;
+    *p=0;
+
+    return StartOfElementData;
+}
+
+/*******************************************************************************
+ * NAME:
+ *    TinyCFG::ReadNextDataElement()
+ *
+ * SYNOPSIS:
+ *    const char *TinyCFG::ReadNextDataElement(const char *DataElementName);
+ *
+ * PARAMETERS:
+ *    DataElementName [I] -- The name of the element to search for.
+ *
+ * FUNCTION:
+ *    This function search from the current position in the element block that
+ *    started the LoadElement() call.
+ *
+ *    This continues searching from the last element found instead of the top
+ *    of the element block.
+ *
+ *    So for example if you registered a data type of "MyStuff" and added
+ *    a LoadElement() callback.  Then for this XML:
+ *
+ *    <Root>
+ *      <MyStuff>
+ *          <Element1>Value1</Element1>
+ *          <Element2>Value2</Element2>
+ *          <Element3>Value3</Element3>
+ *          <Element1>Value4</Element1>
+ *          <Element2>Value5</Element2>
+ *          <Element3>Value6</Element3>
+ *      </MyStuff>
+ *    </Root>
+ *
+ *    When LoadElement() is called it will start searching at the top of
+ *    the <MyStuff> block.
+ *
+ *    If you call ReadNextDataElement("Element2") it will return "Value2".
+ *    If you call it again it search for the NEXT "Element2" and will return
+ *    will return "Value5" this time.
+ *    If you call it again it will return NULL because that are no more matches.
+ *
+ * RETURNS:
+ *    The data from the 'DataElementName' element or NULL if there where no
+ *    more found.
+ *
+ * NOTES:
+ *    WARNING: the current position is not reset if the element name changes.
+ *    This means that if you search for "Element2" and then search for
+ *    "Element1" it will skip "Value1" and instead return "Value4" because
+ *    it started it's search from the end of "Element2".
+ *
+ *    If you want to reset the current position you can use ReadDataElement()
+ *    for the first match and then switch to ReadNextDataElement()
+ *
+ * SEE ALSO:
+ *    TinyCFG::ReadDataElement()
+ ******************************************************************************/
+const char *TinyCFG::ReadNextDataElement(const char *DataElementName)
 {
     char *StartOfElementData;
     char *p;
@@ -1906,8 +2054,6 @@ const char *TinyCFG::ReadData(const char *DataElementName)
 
     return StartOfElementData;
 }
-
-
 
 char *TinyCFG::FindElementAtThisLevel(const char *ElementName,bool EndTag)
 {
@@ -1935,7 +2081,7 @@ char *TinyCFG::FindElementAtThisLevel(const char *ElementName,bool EndTag)
                 }
             }
         }
-        if(c=='<')
+        if(c=='<' || c==0)  // 0 because when we return a string with convert the '<' into a '\0'.  This ONLY applies to searching user type blocks.  The main parser NEVER goes backward
         {
             if(LoadDataReadPoint[1]=='/')
             {
