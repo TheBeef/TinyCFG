@@ -1,4 +1,4 @@
-/* Prerelease Version 0.4 */
+/* Prerelease Version 0.5 */
 
 /*******************************************************************************
  * FILENAME: TinyCFG.h
@@ -9,10 +9,11 @@
  *    This is the .h file for the TinyCFG.cpp file.  It does .h file stuff.
  *
  * COPYRIGHT:
- *    Copyright 2020 Paul Hutchinson
+ *    Copyright 2003 Paul Hutchinson
  *
- *    This software is the property of Paul Hutchinson and may not be reused
- *    in any manner except under express written permission of Paul Hutchinson.
+ *    MIT License
+ *
+ *    See LICENSE file.
  *
  * HISTORY:
  *    PaulHutchinson (19 Jun 2003)

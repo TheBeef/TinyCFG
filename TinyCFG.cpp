@@ -1,41 +1,4 @@
-/* DEBUG PAUL: Convert to something like this when TinyCFG has been updated to support it */
-//    char buff[100];
-//    char TagName[100];
-//    while(CFG->ReadNextXMLTag(TagName,sizeof(TagName),buff,sizeof(buff)))
-//    {
-//        for(cmd=0;cmd<e_CmdMAX;cmd++)
-//        {
-//            if(strcmp(TagName,GetCmdName((e_CmdType)cmd))==0)
-//            {
-//                /* Found it */
-//                ConvertString2KeySeq(&(*Ptr)[cmd],buff);
-//                break;
-//            }
-//        }
-//    }
-//ReadData <--- Already exists
-//CFG->FindXMLBlock("Name")             <- Searchs from the start of the call back block.  (moves cursor to just after the block start)
-//CFG->FindNextXMLBlock("Name")         <- Searchs from the cursor in the call back block (only returns blocks at the curent indent). (moves cursor to just after the block start)
-//CFG->ReadNextXMLTag(buff,size);       <- Reads the next XML tag from the current cursor (only returns blocks at the curent indent). (moves cursor to the end of tag)
-
-
-/* DEBUG PAUL: Convert to something like this when TinyCFG has been updated to support it */
-//    char buff[100];
-//    for(cmd=0;cmd<e_CmdMAX;cmd++)
-//    {
-//        strcpy(buff[cmd],ConvertKeySeq2String(&(*Ptr)[cmd]));
-//        CFG->WriteXMLTag(GetCmdName((e_CmdType)cmd),buff);
-//    }
-////CFG->WriteXMLStartBlock("Name");
-////CFG->WriteXMLEndBlock();
-////WriteData()  <--- Already exists
-
-/* DEBUG PAUL: Things to look at:
-    * Do we need LoadDataDataStart or can we just use the normal read pos?
-    * Add headers to everything
-*/
-
-/* Prerelease Version 0.4 */
+/* Prerelease Version 0.5 */
 
 /*******************************************************************************
  * FILENAME: TinyCFG.cpp
@@ -47,10 +10,9 @@
  *    an xml config file to and from a C struct.
  *
  * COPYRIGHT:
- *    Copyright 2020 Paul Hutchinson
+ *    Copyright 2003 Paul Hutchinson
  *
- *    This software is the property of Paul Hutchinson and may not be reused
- *    in any manner except under express written permission of Paul Hutchinson.
+ *    MIT License, See LICENSE file for details.
  *
  * CREATED BY:
  *    PaulHutchinson (19 Jun 2003)
@@ -2322,3 +2284,40 @@ int main(void)
         printf("   a=%d,b=%d\n",it_sd->a,it_sd->b);
 }
 #endif
+
+/* DEBUG PAUL: Convert to something like this when TinyCFG has been updated to support it */
+//    char buff[100];
+//    char TagName[100];
+//    while(CFG->ReadNextXMLTag(TagName,sizeof(TagName),buff,sizeof(buff)))
+//    {
+//        for(cmd=0;cmd<e_CmdMAX;cmd++)
+//        {
+//            if(strcmp(TagName,GetCmdName((e_CmdType)cmd))==0)
+//            {
+//                /* Found it */
+//                ConvertString2KeySeq(&(*Ptr)[cmd],buff);
+//                break;
+//            }
+//        }
+//    }
+//ReadData <--- Already exists
+//CFG->FindXMLBlock("Name")             <- Searchs from the start of the call back block.  (moves cursor to just after the block start)
+//CFG->FindNextXMLBlock("Name")         <- Searchs from the cursor in the call back block (only returns blocks at the curent indent). (moves cursor to just after the block start)
+//CFG->ReadNextXMLTag(buff,size);       <- Reads the next XML tag from the current cursor (only returns blocks at the curent indent). (moves cursor to the end of tag)
+
+
+/* DEBUG PAUL: Convert to something like this when TinyCFG has been updated to support it */
+//    char buff[100];
+//    for(cmd=0;cmd<e_CmdMAX;cmd++)
+//    {
+//        strcpy(buff[cmd],ConvertKeySeq2String(&(*Ptr)[cmd]));
+//        CFG->WriteXMLTag(GetCmdName((e_CmdType)cmd),buff);
+//    }
+////CFG->WriteXMLStartBlock("Name");
+////CFG->WriteXMLEndBlock();
+////WriteData()  <--- Already exists
+
+/* DEBUG PAUL: Things to look at:
+    * Do we need LoadDataDataStart or can we just use the normal read pos?
+    * Add headers to everything
+*/
