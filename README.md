@@ -1,7 +1,7 @@
 # TinyCFG
 A tiny library for saving / loading C++ structures to / from disk in XML
 
-This is still a work in progress.  The code works but the doc's suck, the example suck, and it doesn't look very pretty.
+This is still a work in progress.  The code works but the doc's suck, the examples suck, and it doesn't look very pretty.
 
 # Quick Summary
 
