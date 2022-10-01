@@ -1,12 +1,13 @@
 # TinyCFG
 A tiny library for saving / loading C++ structures to / from disk in XML
 
-This is still a work in progress.  The code works but the doc's suck, the example suck, and it doesn't look very pretty.
+This is still a work in progress.  The code works but the doc's suck, the examples suck, and it doesn't look very pretty.
 
-#Quick Summary
+# Quick Summary
 
 You make a struct / class with your data in it:
 
+```
 struct MyData
 {
     int One;
@@ -17,18 +18,22 @@ struct MyData
     void load(void);
     void save(void);
 };
+```
 
 Then you make a function that connects the members of your struct with TinyCFG:
 
+```
 void MyData::RegisterAllMembers(class TinyCFG &cfg)
 {
     cfg.Register("One",One);
     cfg.Register("Two",Two);
     cfg.Register("CppString",CppString);
 }
+```
 
 Then went you want to load/save data:
 
+```
 void save(void)
 {
     class TinyCFG cfg("MyData");
@@ -46,6 +51,7 @@ void load(void)
 
     cfg.LoadCFGFile("MyData.xml");
 }
+```
 
 That's it.  Very simple.
 
