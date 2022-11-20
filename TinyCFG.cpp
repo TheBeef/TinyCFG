@@ -1,4 +1,4 @@
-/* Prerelease Version 0.5 */
+/* Prerelease Version 0.6 */
 
 /*******************************************************************************
  * FILENAME: TinyCFG.cpp
@@ -1549,6 +1549,7 @@ bool TinyCFG::LoadCFGFile(const char *FileName,int MaxFileSize)
 
     ReadBuff[ReadFileSize]=0;   // It's a string
     ReadBuffEnd=ReadBuff+ReadFileSize;
+    ReadBuffStartAt=ReadBuff;
 
     try
     {
@@ -1561,7 +1562,7 @@ printf("ERROR\n");
     }
 
     free(ReadBuff);
-    
+
     return true;
 }
 
@@ -1569,6 +1570,7 @@ void TinyCFG::ConnectToParentCFGForReading(class TinyCFG *OrgCFG)
 {
     ReadBuff=OrgCFG->LoadDataDataStart; // This is at the start of data for the current element (<tag>x<--- Here)
     ReadBuffEnd=OrgCFG->ReadPoint;  // This is at the </ in at the end of the current block (----></tag>)
+    ReadBuffStartAt=ReadBuff;
 }
 
 bool TinyCFG::ReadNextCFG(void)
@@ -1577,6 +1579,9 @@ bool TinyCFG::ReadNextCFG(void)
     try
     {
         RetValue=GetAndSetFromXml();
+
+        /* Update the read point so we continue from where we left off */
+        ReadBuffStartAt=ReadPoint;
     }
     catch(...)
     {
@@ -1631,7 +1636,7 @@ bool TinyCFG::GetAndSetFromXml(void)
     InComment=false;
     InElement=false;
     DoingData=false;
-    ReadPoint=ReadBuff;
+    ReadPoint=ReadBuffStartAt;
     Level=0;
     while(ReadPoint<ReadBuffEnd)
     {
@@ -1929,17 +1934,7 @@ const char *TinyCFG::ReadDataElement(const char *DataElementName)
     /* Start at the top of the data block again */
     LoadDataReadPoint=LoadDataDataStart;
 
-    StartOfElementData=FindElementAtThisLevel(DataElementName,false);
-    if(StartOfElementData==NULL)
-        return NULL;
-
-    /* Found, now we need to make it a string */
-    p=StartOfElementData;
-    while(*p!='<' && *p!=0)
-        p++;
-    *p=0;
-
-    return StartOfElementData;
+    return ReadNextDataElement(DataElementName);
 }
 
 /*******************************************************************************
@@ -2011,8 +2006,20 @@ const char *TinyCFG::ReadNextDataElement(const char *DataElementName)
     /* Found, now we need to make it a string */
     p=StartOfElementData;
     while(*p!='<' && *p!=0)
+    {
+        LoadDataReadPoint++;
         p++;
+    }
     *p=0;
+
+    /* Skip the end tag (DEBUG PAUL: This does not handle embedded tags
+       (comments or elements) */
+    while(LoadDataReadPoint<ReadBuffEnd && *LoadDataReadPoint!='>')
+        LoadDataReadPoint++;
+    if(*LoadDataReadPoint!='>')
+        return NULL;
+
+    LoadDataReadPoint++;    // Move past the >
 
     return StartOfElementData;
 }

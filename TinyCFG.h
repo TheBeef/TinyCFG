@@ -1,4 +1,4 @@
-/* Prerelease Version 0.5 */
+/* Prerelease Version 0.6 */
 
 /*******************************************************************************
  * FILENAME: TinyCFG.h
@@ -120,6 +120,7 @@ class TinyCFG
         char *ReadBuff;
         char *ReadBuffEnd;
         char *ReadPoint;
+        char *ReadBuffStartAt;      // The point we start reading at (normally a copy of ReadBuff, but changed when chaining)
         char *LoadDataDataStart;
         char *LoadDataReadPoint;    // A copy of 'ReadPoint' for the LoadData() functions from 'TinyCFGBaseData' to use
         struct TinyCFG_Entry *CurrentReadLevel;
