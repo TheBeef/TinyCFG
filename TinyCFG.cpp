@@ -1,4 +1,4 @@
-/* Prerelease Version 0.6 */
+/* Prerelease Version 0.7 */
 
 /*******************************************************************************
  * FILENAME: TinyCFG.cpp
@@ -552,7 +552,10 @@ bool TinyCFG::Register(const char *XmlName,string &Data)
     }
 
     if(!CheckXMLName(XmlName))
+    {
+        delete NewDataClass;
         return false;
+    }
 
     /* Setup the data */
     NewDataClass->Ptr=&Data;
@@ -609,7 +612,10 @@ bool TinyCFG::RegisterInt(const char *XmlName,unsigned int *Data,bool OutputHex,
     }
 
     if(!CheckXMLName(XmlName))
+    {
+        delete NewDataClass;
         return false;
+    }
 
     /* Setup the data */
     NewDataClass->Ptr=(int *)Data;
@@ -634,7 +640,10 @@ bool TinyCFG::RegisterShort(const char *XmlName,unsigned short *Data,
     }
 
     if(!CheckXMLName(XmlName))
+    {
+        delete NewDataClass;
         return false;
+    }
 
     /* Setup the data */
     NewDataClass->Ptr=(short *)Data;
@@ -659,7 +668,10 @@ bool TinyCFG::RegisterLong(const char *XmlName,unsigned long *Data,
     }
 
     if(!CheckXMLName(XmlName))
+    {
+        delete NewDataClass;
         return false;
+    }
 
     /* Setup the data */
     NewDataClass->Ptr=(long *)Data;
@@ -684,7 +696,10 @@ bool TinyCFG::Register(const char *XmlName,char *Data,int MaxSize)
     }
 
     if(!CheckXMLName(XmlName))
+    {
+        delete NewDataClass;
         return false;
+    }
 
     /* Setup the data */
     NewDataClass->Ptr=Data;
@@ -708,7 +723,10 @@ bool TinyCFG::Register(const char *XmlName,bool &Data)
     }
 
     if(!CheckXMLName(XmlName))
+    {
+        delete NewDataClass;
         return false;
+    }
 
     /* Setup the data */
     NewDataClass->Ptr=&Data;
@@ -732,7 +750,10 @@ bool TinyCFG::Register(const char *XmlName,double &Data,const char *FormatStr)
     }
 
     if(!CheckXMLName(XmlName))
+    {
+        delete NewDataClass;
         return false;
+    }
 
     /* Setup the data */
     NewDataClass->Ptr=&Data;
@@ -743,27 +764,30 @@ bool TinyCFG::Register(const char *XmlName,double &Data,const char *FormatStr)
 }
 bool TinyCFG::Register(const char *XmlName,list<string> &Data)
 {
-   class TinyCFG_DefaultStringListData *NewDataClass;
+    class TinyCFG_DefaultStringListData *NewDataClass;
 
-   /* Make a new class to handle this new piece of data */
-   try
-   {
-      NewDataClass=new TinyCFG_DefaultStringListData;
-   }
-   catch(std::bad_alloc)
-   {
-      Failure=true;
-      return false;
-   }
+    /* Make a new class to handle this new piece of data */
+    try
+    {
+        NewDataClass=new TinyCFG_DefaultStringListData;
+    }
+    catch(std::bad_alloc)
+    {
+        Failure=true;
+        return false;
+    }
 
-   if(!CheckXMLName(XmlName))
-      return false;
+    if(!CheckXMLName(XmlName))
+    {
+        delete NewDataClass;
+        return false;
+    }
 
-   /* Setup the data */
-   NewDataClass->Ptr=&Data;
-   NewDataClass->XmlName=XmlName;
+    /* Setup the data */
+    NewDataClass->Ptr=&Data;
+    NewDataClass->XmlName=XmlName;
 
-   return RegisterGeneric(NewDataClass);
+    return RegisterGeneric(NewDataClass);
 }
 bool TinyCFG::Register(const char *XmlName,list<int> &Data)
 {
@@ -781,7 +805,10 @@ bool TinyCFG::Register(const char *XmlName,list<int> &Data)
     }
 
     if(!CheckXMLName(XmlName))
+    {
+        delete NewDataClass;
         return false;
+    }
 
     /* Setup the data */
     NewDataClass->Ptr=&Data;
@@ -876,7 +903,10 @@ bool TinyCFG::RegisterEnum(const char *XmlName,int &Data,int DefaultValue,
     }
 
     if(!CheckXMLName(XmlName))
+    {
+        delete NewDataClass;
         return false;
+    }
 
     /* Setup the data */
     NewDataClass->Ptr=&Data;
