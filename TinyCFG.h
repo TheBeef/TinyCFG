@@ -86,6 +86,8 @@ class TinyCFG
         bool Register(const char *XmlName,unsigned short &Data);
         bool Register(const char *XmlName,long &Data);
         bool Register(const char *XmlName,unsigned long &Data);
+        bool Register(const char *XmlName,long long &Data);
+        bool Register(const char *XmlName,unsigned long long &Data);
         bool Register(const char *XmlName,char *Data,int MaxSize);
         bool Register(const char *XmlName,bool &Data);
         bool Register(const char *XmlName,std::list<std::string> &Data);
@@ -134,6 +136,8 @@ class TinyCFG
         bool RegisterShort(const char *XmlName,unsigned short *Data,
                 bool IsUnsigned);
         bool RegisterLong(const char *XmlName,unsigned long *Data,
+                bool IsUnsigned);
+        bool RegisterLongLong(const char *XmlName,unsigned long long *Data,
                 bool IsUnsigned);
         void ResetData(void);
         bool CheckXMLName(const char *CheckName);

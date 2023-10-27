@@ -1,4 +1,4 @@
-/* Prerelease Version 0.7 */
+/* Prerelease Version 0.8 */
 
 /*******************************************************************************
  * FILENAME: TinyCFG.cpp
@@ -122,6 +122,28 @@ class TinyCFG_DefaultLongData : public TinyCFGBaseData
         bool LoadData(string &LoadedString)
         {
             *Ptr=atoi(LoadedString.c_str());
+            return true;
+        }
+        bool SaveData(string &StoreString)
+        {
+            char buff[100];
+            sprintf(buff,FormatString,*Ptr);
+            StoreString=buff;
+            return true;
+        }
+};
+class TinyCFG_DefaultLongLongData : public TinyCFGBaseData
+{
+    public:
+        long long *Ptr;
+        const char *FormatString;
+        TinyCFG_DefaultLongLongData(bool UnsignedNumber)
+        {
+            FormatString=UnsignedNumber?"%llu":"%lld";
+        }
+        bool LoadData(string &LoadedString)
+        {
+            *Ptr=strtoll(LoadedString.c_str(),NULL,10);
             return true;
         }
         bool SaveData(string &StoreString)
@@ -587,6 +609,14 @@ bool TinyCFG::Register(const char *XmlName,unsigned long &Data)
 {
     return RegisterLong(XmlName,&Data,true);
 }
+bool TinyCFG::Register(const char *XmlName,long long &Data)
+{
+    return RegisterLongLong(XmlName,(unsigned long long *)&Data,false);
+}
+bool TinyCFG::Register(const char *XmlName,unsigned long long &Data)
+{
+    return RegisterLongLong(XmlName,&Data,true);
+}
 bool TinyCFG::Register(const char *XmlName,int &Data,bool OutputHex)
 {
     return RegisterInt(XmlName,(unsigned int *)&Data,OutputHex,true);
@@ -675,6 +705,34 @@ bool TinyCFG::RegisterLong(const char *XmlName,unsigned long *Data,
 
     /* Setup the data */
     NewDataClass->Ptr=(long *)Data;
+    NewDataClass->XmlName=XmlName;
+
+    return RegisterGeneric(NewDataClass);
+}
+bool TinyCFG::RegisterLongLong(const char *XmlName,unsigned long long *Data,
+        bool IsUnsigned)
+{
+    class TinyCFG_DefaultLongLongData *NewDataClass;
+
+    /* Make a new class to handle this new piece of data */
+    try
+    {
+        NewDataClass=new TinyCFG_DefaultLongLongData(IsUnsigned);
+    }
+    catch(std::bad_alloc)
+    {
+        Failure=true;
+        return false;
+    }
+
+    if(!CheckXMLName(XmlName))
+    {
+        delete NewDataClass;
+        return false;
+    }
+
+    /* Setup the data */
+    NewDataClass->Ptr=(long long *)Data;
     NewDataClass->XmlName=XmlName;
 
     return RegisterGeneric(NewDataClass);
