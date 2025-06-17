@@ -2246,6 +2246,8 @@ bool TinyCFG::ReadNextTag(std::string &XmlName,std::string &DataElement)
 
     XmlName=Tag;
     DataElement=Data;
+
+    return true;
 }
 
 bool TinyCFG::FindNextTagStartAndEndAtThisLevel(char **Start,char **Data,char **End)
