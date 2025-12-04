@@ -34,15 +34,17 @@ void Settings::LoadSettings(void)
 
 int main(void)
 {
-    g_Settings.DefaultName="Paul";
+    g_Settings.DefaultName="<Paul>";
     g_Settings.DefaultAge=25;
     g_Settings.NameList.push_back("Paul");
     g_Settings.NameList.push_back("Ted");
     g_Settings.NameList.push_back("Sarah");
 
     g_Settings.SaveSettings();
+    printf("Before:\"%s\"\n",g_Settings.DefaultName.c_str());
 
     g_Settings.LoadSettings();
+    printf("After:\"%s\"\n",g_Settings.DefaultName.c_str());
 
     return 0;
 }

@@ -1466,7 +1466,7 @@ void TinyCFG::WriteXMLCloseDataElement(const char *ElementName)
  *    NONE
  *
  * SEE ALSO:
- *    TinyCFG::WriteXMLOpenElement()
+ *    TinyCFG::WriteXMLOpenElement(), UnEscapedString()
  ******************************************************************************/
 void TinyCFG::WriteXMLEscapedString(const char *OutString)
 {
@@ -1555,6 +1555,78 @@ void TinyCFG::WriteDataElement(const char *XmlName,const char *Value)
     WriteXMLOpenDataElement(XmlName);
     WriteXMLEscapedString(Value);
     WriteXMLCloseDataElement(XmlName);
+}
+
+/*******************************************************************************
+ * NAME:
+ *    TinyCFG::UnEscapedString
+ *
+ * SYNOPSIS:
+ *    std::string TinyCFG::UnEscapedString(std::string &RetStr,char *InString);
+ *
+ * PARAMETERS:
+ *    RetStr [O] -- The string we are returning.  The converted string.
+ *    InString [I] -- The string to convert
+ *
+ * FUNCTION:
+ *    This function unconverts a string for xml data.  It unescapes the string
+ *    correctly for XML.  It will convert the following:
+ *          &amp; -- &
+ *          &lt; -- <
+ *          &gt; -- >
+ *          &#xx; -- 0-31
+ *          &#xxx; -- 127-255
+ *
+ * RETURNS:
+ *    A new string that has been unescaped.
+ *
+ * SEE ALSO:
+ *    TinyCFG::WriteXMLEscapedString()
+ ******************************************************************************/
+void TinyCFG::UnEscapedString(std::string &RetStr,const char *OutString)
+{
+    int Len;
+    const char *Pos;
+    char c;
+
+    RetStr="";
+
+    Len=strlen(OutString);
+    RetStr.reserve(Len);
+
+    Pos=OutString;
+    while(*Pos!=0)
+    {
+        c=*Pos;
+        if(strncmp(Pos,"&amp;",5)==0)
+        {
+            c='&';
+            Pos+=4;
+        }
+        else if(strncmp(Pos,"&lt;",4)==0)
+        {
+            c='<';
+            Pos+=3;
+        }
+        else if(strncmp(Pos,"&gt;",4)==0)
+        {
+            c='>';
+            Pos+=3;
+        }
+        else if(strncmp(Pos,"&#",2)==0)
+        {
+            Pos+=2;
+            c=strtol(Pos,NULL,10);
+            while(*Pos!=';' && *Pos!=0)
+                Pos++;
+
+            /* If we are at the end of the string then back up by 1 */
+            if(*Pos==0)
+                Pos--;
+        }
+        RetStr.push_back(c);
+        Pos++;
+    }
 }
 
 /*******************************************************************************
@@ -1789,7 +1861,8 @@ bool TinyCFG::GetAndSetFromXml(void)
                                     /* Copy to a string (because the old
                                        API used a string instead of a C
                                        String */
-                                    DataString=DataStart;
+//                                    DataString=DataStart;
+                                    UnEscapedString(DataString,DataStart);
                                     DataEntry->Data->LoadData(DataString);
                                 }
                             }
