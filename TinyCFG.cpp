@@ -2083,6 +2083,7 @@ bool TinyCFG::CheckXMLName(const char *CheckName)
  *
  * RETURNS:
  *    The data from the 'DataElementName' element or NULL if it was not found.
+ *    This is valid until the next call to this function.
  *
  * SEE ALSO:
  *    ReadNextDataElement()
@@ -2139,7 +2140,7 @@ const char *TinyCFG::ReadDataElement(const char *DataElementName)
  *
  * RETURNS:
  *    The data from the 'DataElementName' element or NULL if there where no
- *    more found.
+ *    more found.  This is only valid until the call to this to this funciton.
  *
  * NOTES:
  *    WARNING: the current position is not reset if the element name changes.
@@ -2157,6 +2158,7 @@ const char *TinyCFG::ReadNextDataElement(const char *DataElementName)
 {
     char *StartOfElementData;
     char *p;
+    static string RetStr;
 
     /* Ok, we search for the next element named 'DataElementName' that is
        inside this levels data.  Start from 'LoadDataReadPoint' */
@@ -2182,7 +2184,9 @@ const char *TinyCFG::ReadNextDataElement(const char *DataElementName)
 
     LoadDataReadPoint++;    // Move past the >
 
-    return StartOfElementData;
+    UnEscapedString(RetStr,StartOfElementData);
+
+    return RetStr.c_str();
 }
 
 /*******************************************************************************
@@ -2299,12 +2303,15 @@ bool TinyCFG::ReadNextTag(const char **XmlName,const char **DataElement)
     char *Tag;
     char *Data;
     char *EndTag;
+    static string RetStr;
 
     if(!FindNextTagStartAndEndAtThisLevel(&Tag,&Data,&EndTag))
         return false;
 
+    UnEscapedString(RetStr,Data);
+
     *XmlName=Tag;
-    *DataElement=Data;
+    *DataElement=RetStr.c_str();
 
     return true;
 }
@@ -2318,7 +2325,7 @@ bool TinyCFG::ReadNextTag(std::string &XmlName,std::string &DataElement)
         return false;
 
     XmlName=Tag;
-    DataElement=Data;
+    UnEscapedString(DataElement,Data);
 
     return true;
 }
